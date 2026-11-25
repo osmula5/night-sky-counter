@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#070817">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Night">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon.png">
+<title>Night</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  html, body { width:100%; height:100%; margin:0; overflow:hidden; }
+  body {
+    display:grid; place-items:center;
+    background:
+      radial-gradient(ellipse at 50% 48%, rgba(58,65,135,.34) 0%, transparent 52%),
+      radial-gradient(ellipse at 12% 22%, rgba(117,83,150,.20) 0%, transparent 42%),
+      radial-gradient(ellipse at 88% 76%, rgba(49,105,153,.20) 0%, transparent 45%),
+      radial-gradient(ellipse at 50% 110%, rgba(18,34,82,.30), transparent 58%),
+      #070817;
+    font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    -webkit-tap-highlight-color:transparent;
+    user-select:none;
+  }
+  .sky { position:fixed; inset:0; pointer-events:none; overflow:hidden; isolation:isolate; }
+  .sky::before, .sky::after {
+    content:""; position:absolute; inset:-18%; pointer-events:none; border-radius:50%;
+    filter:blur(42px); transform:translateZ(0);
+  }
+  .sky::before {
+    background:
+      radial-gradient(ellipse at 22% 34%, rgba(172,139,193,.17) 0%, transparent 24%),
+      radial-gradient(ellipse at 68% 24%, rgba(94,132,190,.18) 0%, transparent 27%),
+      radial-gradient(ellipse at 72% 76%, rgba(151,115,171,.13) 0%, transparent 25%),
+      radial-gradient(ellipse at 28% 82%, rgba(89,133,177,.15) 0%, transparent 29%);
+  }
+  .sky::after {
+    inset:-8%;
+    background:
+      radial-gradient(ellipse at 50% 12%, rgba(176,155,197,.10) 0%, transparent 30%),
+      radial-gradient(ellipse at 8% 62%, rgba(107,140,190,.12) 0%, transparent 25%),
+      radial-gradient(ellipse at 92% 42%, rgba(183,145,184,.10) 0%, transparent 26%);
+    filter:blur(58px);
+  }
+  .star {
+    position:absolute; width:2px; height:2px; border-radius:50%;
+    background:#e1e8ff; opacity:var(--o);
+    box-shadow:0 0 6px rgba(190,213,255,.65);
+    animation:twinkle var(--duration) ease-in-out var(--delay) infinite alternate;
+  }
+  @keyframes twinkle {
+    from { opacity:var(--low); transform:scale(.82); }
+    to { opacity:var(--high); transform:scale(1.18); }
+  }
+  .moon-glow {
+    position:fixed; width:min(72vw, 420px); aspect-ratio:1;
+    left:50%; top:50%; transform:translate(-50%,-50%);
+    border-radius:50%; pointer-events:none;
+    background:radial-gradient(circle, rgba(161,174,226,.075) 0%, rgba(116,135,196,.035) 34%, transparent 68%);
+    filter:blur(7px);
+  }
+  .center {
+    position:relative; z-index:2; display:flex; flex-direction:column;
+    align-items:center; gap:22px;
+  }
+  #counter {
+    position:relative; display:grid; place-items:center; z-index:2;
+    width:min(46vw, 194px); height:min(46vw, 194px);
+    min-width:148px; min-height:148px; max-width:194px; max-height:194px;
+    border:1px solid rgba(238,239,255,.78); border-radius:50%;
+    color:#202641;
+    font:650 clamp(29px, 8vw, 43px)/1 -apple-system, BlinkMacSystemFont, sans-serif;
+    font-variant-numeric:tabular-nums;
+    background:
+      radial-gradient(circle at 32% 24%, rgba(255,255,255,.92), transparent 28%),
+      radial-gradient(circle at 70% 78%, rgba(178,194,232,.55), transparent 58%),
+      linear-gradient(145deg, #f0eff4 0%, #d9dce9 52%, #b9c5df 100%);
+    box-shadow:
+      0 0 18px rgba(198,211,255,.42),
+      0 0 46px rgba(133,160,226,.27),
+      0 0 90px rgba(101,125,190,.13),
+      inset 0 2px 12px rgba(255,255,255,.95),
+      inset 0 -12px 24px rgba(92,108,151,.18);
+    cursor:pointer; outline:none; touch-action:manipulation;
+    -webkit-appearance:none; appearance:none;
+    transform:scale(1);
+    will-change:transform, box-shadow;
+  }
+  #counter:active { transform:scale(.91); }
+  #counter.pulse { animation:heartbeat 520ms cubic-bezier(.2,.75,.25,1); }
+  @keyframes heartbeat {
+    0% { transform:scale(1); }
+    18% { transform:scale(.91); }
+    38% { transform:scale(1.055); }
+    55% { transform:scale(.975); }
+    73% { transform:scale(1.018); }
+    100% { transform:scale(1); }
+  }
+  #counter.pulse {
+    box-shadow:
+      0 0 24px rgba(208,220,255,.62),
+      0 0 58px rgba(133,160,226,.36),
+      0 0 100px rgba(101,125,190,.18),
+      inset 0 2px 12px rgba(255,255,255,.95),
+      inset 0 -12px 24px rgba(92,108,151,.18);
+  }
+  #minus {
+    display:grid; place-items:center;
+    width:43px; height:43px; border-radius:50%;
+    border:1px solid rgba(191,205,239,.3);
+    color:rgba(220,228,250,.82);
+    background:rgba(27,35,66,.55);
+    box-shadow:0 0 16px rgba(108,133,198,.16), inset 0 1px 5px rgba(255,255,255,.08);
+    font:300 26px/1 -apple-system, BlinkMacSystemFont, sans-serif;
+    cursor:pointer; touch-action:manipulation;
+    -webkit-appearance:none; appearance:none;
+    transition:transform .16s ease, background .16s ease, box-shadow .16s ease;
+  }
+  #minus:active { transform:scale(.88); background:rgba(46,57,96,.72); }
+  .particle {
+    position:fixed; z-index:1; width:4px; height:4px; border-radius:50%;
+    background:rgba(205,220,255,.88);
+    box-shadow:0 0 8px 2px rgba(139,171,255,.42);
+    pointer-events:none; animation:drift 760ms ease-out forwards;
+  }
+  @keyframes drift {
+    from { opacity:.7; transform:translate(0,0) scale(.8); }
+    to { opacity:0; transform:translate(var(--x),var(--y)) scale(.12); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation:none !important; transition:none !important; }
+    #counter:active, #minus:active { transform:none; }
+  }
+</style>
+</head>
+<body>
+  <div class="sky" aria-hidden="true" id="sky"></div>
+  <div class="moon-glow" aria-hidden="true"></div>
+  <main class="center">
+    <button id="counter" type="button" aria-label="Увеличить счётчик">0</button>
+    <button id="minus" type="button" aria-label="Уменьшить счётчик">−</button>
+  </main>
+<script>
+(() => {
+  const key = "quiet-night-counter-v1";
+  const button = document.getElementById("counter");
+  const minus = document.getElementById("minus");
+  const sky = document.getElementById("sky");
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  let count = 0;
+
+  try {
+    const saved = Number.parseInt(localStorage.getItem(key) || "0", 10);
+    count = Number.isSafeInteger(saved) && saved >= 0 ? saved : 0;
+  } catch (_) {}
+  button.textContent = String(count);
+
+  let seed = 1847;
+  const random = () => {
+    seed = (seed * 16807) % 2147483647;
+    return (seed - 1) / 2147483646;
+  };
+  for (let i = 0; i < 105; i++) {
+    const star = document.createElement("i");
+    const low = 0.12 + random() * 0.15;
+    const high = Math.min(0.72, low + 0.18 + random() * 0.16);
+    star.className = "star";
+    star.style.left = (random() * 100) + "%";
+    star.style.top = (random() * 100) + "%";
+    star.style.setProperty("--o", low.toFixed(2));
+    star.style.setProperty("--low", low.toFixed(2));
+    star.style.setProperty("--high", high.toFixed(2));
+    star.style.setProperty("--duration", (6 + random() * 7).toFixed(1) + "s");
+    star.style.setProperty("--delay", (-random() * 12).toFixed(1) + "s");
+    sky.appendChild(star);
+  }
+
+  function save() {
+    button.textContent = String(count);
+    try { localStorage.setItem(key, String(count)); } catch (_) {}
+  }
+
+  function feedback() {
+    // Haptic feedback works only on browsers/devices that expose the Vibration API.
+    try { if (navigator.vibrate) navigator.vibrate(14); } catch (_) {}
+  }
+
+  function pulse() {
+    if (reducedMotion.matches) return;
+    button.classList.remove("pulse");
+    void button.offsetWidth;
+    button.classList.add("pulse");
+  }
+
+  function particles(origin, amount) {
+    if (reducedMotion.matches) return;
+    const rect = origin.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    for (let i = 0; i < amount; i++) {
+      const angle = (Math.PI * 2 * i / amount) + Math.random() * .22;
+      const distance = 27 + Math.random() * 27;
+      const p = document.createElement("i");
+      p.className = "particle";
+      p.style.left = cx + "px";
+      p.style.top = cy + "px";
+      p.style.setProperty("--x", (Math.cos(angle) * distance) + "px");
+      p.style.setProperty("--y", (Math.sin(angle) * distance) + "px");
+      document.body.appendChild(p);
+      p.addEventListener("animationend", () => p.remove(), { once:true });
+    }
+  }
+
+  button.addEventListener("click", () => {
+    if (count < Number.MAX_SAFE_INTEGER) count++;
+    save();
+    pulse();
+    particles(button, 9);
+    feedback();
+  });
+
+  minus.addEventListener("click", () => {
+    count = Math.max(0, count - 1);
+    save();
+    particles(minus, 5);
+    feedback();
+  });
+})();
+</script>
+</body>
+</html>
